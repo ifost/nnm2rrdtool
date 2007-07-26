@@ -1,0 +1,57 @@
+#!/opt/OV/bin/Perl/bin/perl -w
+
+# nnm2rrdtool.ovpl
+# Copyright Greg Baker (gregb@ifost.org.au) 2007
+
+=head1 Integration tool from HP OpenView Network Node Manager to rrdtool
+
+This is a very simple program I wrote to take data collected by snmpCollect
+(one of the openview services inside network node manager) and store it in
+rrdtool. This means that all data will be in 3 places -- the trend database
+in the filesystem, in the OpenView data warehouse, and inside rrdtool.
+
+The program takes three arguments:
+
+=over
+
+=item The path name to the trend database file
+
+=item The path name to the rrd file you want things stored into
+
+=item A pattern match for the hostname you are wanting data for
+
+=back
+
+So, to use this you would
+
+=over
+
+=item Run rrdtool create once for each instance of each mib of each computer you want data collected for. Read the rrdtool tutorial for the syntax of this.
+
+=item Set up data collection inside NNM
+
+=item Run a copy of this program once for each instance of each mib of each computer you are collecting. 
+
+=over
+
+A really sensible idea that I haven't done yet is to have some way of creating
+LRF files so that nnm2rrdtool.ovpl is running at all times. 
+
+Better still would be a tool that automatically did all the above steps for
+you. Maybe one day...
+
+=cut
+
+use strict;
+
+die "Usage: nnm2rrdtool.ovpl path-to-snmpCollection-file path-to-rrd-file pattern-match" unless $#ARGV == 2;
+
+open (SNMPDATA,"snmpColDump -f -T $ARGV[0] |")
+  || die "Couldn't run snmpCollect";
+
+my (@fields);
+while (<SNMPDATA>) {
+  @fields = split;
+  system("rrdtool update $ARGV[1] $fields[5]:$fields[4]")
+    if $fields[3] =~ /$ARGV[2]/;
+}

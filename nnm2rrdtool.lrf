@@ -1,0 +1,3 @@
+nnm2rrdtool:/usr/local/bin/nnm2rrdtool.ovpl:
+OVs_YES_START:snmpCollect:/var/opt/OV/share/databases/snmpCollect/sysUptime.0  /var/db/uptime-syd70.rrd syd70:OVs_NON_WELL_BEHAVED:60:NOPAUSE:
+
